@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Mermaid JS Graph Generator - Safe for Sensitive Data</title>
+    <script src="./mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Blue title bar */
+        .title-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 16px;
+            margin-top: 80px;
+        }
+
+        #mermaidCode {
+            width: 100%;
+            height: 200px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            resize: vertical;
+        }
+
+        #mermaidGraphContainer {
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #mermaidGraph {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 90%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+            align-self: center;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            Offline Mermaid JS Graph Generator
+        </div>
+        
+        <p>Generate Mermaid diagrams securely without internet access — safe for sensitive data.</p>
+
+        <!-- Code editor for Mermaid code -->
+        <textarea id="mermaidCode" rows="10" placeholder="Paste your Mermaid code here...">
+graph TD
+    A[Start] --> B{Is it working?}
+    B -- Yes --> C[Finish]
+    B -- No --> D[Try again]
+        </textarea>
+
+        <!-- Container for the rendered Mermaid graph -->
+        <div id="mermaidGraphContainer">
+            <div id="mermaidGraph"></div>
+        </div>
+
+        <!-- Button container -->
+        <div class="button-container">
+            <!-- Download buttons -->
+            <button class="button" id="downloadButton">Download as SVG</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid without auto-rendering on page load
+        mermaid.initialize({ startOnLoad: false });
+
+        function renderMermaid() {
+            const code = document.getElementById("mermaidCode").value;
+            const graphContainer = document.getElementById("mermaidGraphContainer");
+
+            // Clear the container and create a fresh graph div
+            graphContainer.innerHTML = '<div id="mermaidGraph" class="mermaid"></div>';
+            const graphDiv = document.getElementById("mermaidGraph");
+
+            // Set the Mermaid code inside the new graph div
+            graphDiv.innerHTML = code;
+
+            // Reinitialize Mermaid on the new graph div
+            mermaid.init(undefined, graphDiv);
+        }
+
+        function downloadGraph() {
+            const graphDiv = document.getElementById("mermaidGraph");
+            const svg = graphDiv.querySelector('svg');
+
+            if (svg) {
+                const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'mermaid-graph.svg';
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                alert("No graph generated to download.");
+            }
+        }
+
+        // Initial render on page load
+        renderMermaid();
+
+        // Optionally, you can trigger the rendering as the content in the textarea changes
+        document.getElementById("mermaidCode").addEventListener("input", renderMermaid);
+
+        // Add event listeners for the download buttons
+        document.getElementById("downloadButton").addEventListener("click", downloadGraph);
+    </script>
+</body>
+</html>
